@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		EEBAF9BF2D005EE7006CBA43 /* xray-ai */ = {
+		EEBAF9E72D07140A006CBA43 /* xray-ai */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "xray-ai";
 			sourceTree = "<group>";
@@ -32,7 +32,7 @@
 		EEBAF9B42D005EE7006CBA43 = {
 			isa = PBXGroup;
 			children = (
-				EEBAF9BF2D005EE7006CBA43 /* xray-ai */,
+				EEBAF9E72D07140A006CBA43 /* xray-ai */,
 				EEBAF9BE2D005EE7006CBA43 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,7 +61,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				EEBAF9BF2D005EE7006CBA43 /* xray-ai */,
+				EEBAF9E72D07140A006CBA43 /* xray-ai */,
 			);
 			name = "xray-ai";
 			packageProductDependencies = (
@@ -252,6 +252,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"xray-ai/Preview Content\"";
+				DEVELOPMENT_TEAM = 44B7K65S78;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -280,6 +281,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"xray-ai/Preview Content\"";
+				DEVELOPMENT_TEAM = 44B7K65S78;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
