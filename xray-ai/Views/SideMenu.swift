@@ -9,12 +9,12 @@ import SwiftUI
 struct SideMenu: View {
     @Binding var showMenu: Bool
     @State var messageText: String = ""
-    @State private var selectedTab: String = "Chat"
-
+    @Binding var selectedTab: String
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 15) {
-                TextField("Enter the message", text: $messageText)
+                TextField("Search", text: $messageText)
                     .padding()
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(12)
@@ -22,13 +22,12 @@ struct SideMenu: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack {
                         Divider()
-                        VStack(alignment: .leading, spacing: 45) {
+                        VStack(alignment: .leading, spacing: 10) {
                             // Tab buttons...
                             TabButton(title: "Chat", image: "ellipsis.message", selectedTab: $selectedTab, destination: HomeView(showMenu: .constant(false)))
-                            TabButton(title: "X-ray", image: "apple.image.playground", selectedTab: $selectedTab, destination: ScanView())
+                            TabButton(title: "X-ray", image: "apple.image.playground", selectedTab: $selectedTab, destination: ScanView(showMenu: .constant(false)))
                         }
                         .padding()
-                        .padding(.leading)
                         .padding(.top,35)
                         Divider()
                     }
@@ -78,7 +77,12 @@ struct SideMenu: View {
     
     @ViewBuilder
     func TabButton<Destination: View>(title: String, image: String, selectedTab: Binding<String>, destination: Destination) -> some View {
-        NavigationLink(destination: destination) {
+        Button(action: {
+            selectedTab.wrappedValue = title
+            withAnimation {
+                showMenu.toggle()
+            }
+        }) {
             HStack(spacing: 14) {
                 Image(systemName: image)
                     .resizable()
@@ -88,21 +92,11 @@ struct SideMenu: View {
                 Text(title)
             }
             .padding()
-            .background(selectedTab.wrappedValue == title ? Color.blue.opacity(0.2) : Color.clear)
-            .cornerRadius(10)
             .foregroundColor(.primary)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .onTapGesture {
-                selectedTab.wrappedValue = title
-            }
+            .background(selectedTab.wrappedValue == title ? Color.blue.opacity(0.2) : Color.clear)
+            .cornerRadius(10)
         }
-    }
-}
-
-struct ScanView: View {
-    var body: some View {
-        Text("Scan View")
-            .navigationTitle("X-ray")
     }
 }
 

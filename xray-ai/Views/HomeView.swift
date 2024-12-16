@@ -10,8 +10,8 @@ import SwiftUI
 struct HomeView: View {
     @Binding var showMenu: Bool
     
-    @State var chatMessages: [ChatMessage] = ChatMessage.sampleMessages
-    @State var messageText: String = ""
+    @State private var chatMessages: [ChatMessage] = ChatMessage.sampleMessages
+    @State private var messageText: String = ""
     
     var body: some View {
         ZStack {
@@ -50,6 +50,8 @@ struct HomeView: View {
                     showMenu.toggle()
                 } label: {
                     Image(systemName: "line.3.horizontal")
+                        .font(.title2)
+                        .foregroundColor(.primary)
                 }
             }
         }
@@ -72,6 +74,7 @@ struct HomeView: View {
     }
     
     func sendMessage() {
+        guard !messageText.isEmpty else { return }
         let newMessage = ChatMessage(
             id: UUID().uuidString,
             content: messageText,

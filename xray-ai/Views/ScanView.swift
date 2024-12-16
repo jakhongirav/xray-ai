@@ -8,11 +8,20 @@
 import SwiftUI
 
 struct ScanView: View {
+    @Binding var showMenu: Bool
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack {
+            Text("Scan View")
+                .font(.largeTitle)
+                .padding()
+            // Add more UI components for the ScanView here
+        }
+        .navigationTitle("Scan")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    ScanView()
+    ScanView(showMenu: .constant(false))
 }
