@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct xray_aiApp: App {
+    @StateObject private var historyManager = HistoryManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(historyManager)
         }
     }
 }

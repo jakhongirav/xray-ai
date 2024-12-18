@@ -14,19 +14,22 @@ struct ChatView: View {
                 }
                 .padding()
             }
+            .background(Color(uiColor: .systemBackground))
 
             Divider()
 
             HStack {
                 TextField("Type a message...", text: $inputText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .background(Color(uiColor: .secondarySystemBackground))
                 Button(action: sendMessage) {
                     Image(systemName: "paperplane.fill")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.accentColor)
                 }
             }
             .padding()
         }
+        .background(Color(uiColor: .systemBackground))
         .navigationTitle("Chat")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -40,17 +43,17 @@ struct ChatView: View {
 
 struct ChatBubble: View {
     var message: String
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         HStack {
             Text(message)
                 .padding()
-                .foregroundColor(.white)
-                .background(Color.blue)
+                .foregroundColor(colorScheme == .dark ? .white : .black)
+                .background(colorScheme == .dark ? Color.accentColor : Color.gray)
                 .cornerRadius(10)
                 .frame(maxWidth: 300, alignment: .leading)
             Spacer()
         }
     }
 }
-

@@ -9,10 +9,10 @@ import SwiftUI
 
 struct HomeView: View {
     @Binding var showMenu: Bool
-    
+
     @State private var chatMessages: [ChatMessage] = ChatMessage.sampleMessages
     @State private var messageText: String = ""
-    
+
     var body: some View {
         ZStack {
             VStack {
@@ -26,7 +26,7 @@ struct HomeView: View {
                 HStack {
                     TextField("Enter the message", text: $messageText)
                         .padding()
-                        .background(Color.gray.opacity(0.1))
+                        .background(Color(uiColor: .tertiarySystemBackground))
                         .cornerRadius(12)
                         .padding(.horizontal)
                     Button {
@@ -35,7 +35,7 @@ struct HomeView: View {
                         Text("Send")
                             .foregroundColor(.white)
                             .padding()
-                            .background(Color.black)
+                            .background(Color.accentColor)
                             .cornerRadius(12)
                     }
                 }
@@ -43,23 +43,23 @@ struct HomeView: View {
             .padding()
         }
     }
-    
+
     func messageView(message: ChatMessage) -> some View {
         HStack {
             if message.sender == .me {
                 Spacer()
             }
             Text(message.content)
-                .foregroundColor(message.sender == .me ? .white : .black)
+                .foregroundColor(message.sender == .me ? .white : .secondary)
                 .padding()
-                .background(message.sender == .me ? Color.blue : Color.gray.opacity(0.1))
+                .background(message.sender == .me ? Color.accentColor : Color(uiColor: .tertiarySystemBackground))
                 .cornerRadius(16)
             if message.sender == .ai {
                 Spacer()
             }
         }
     }
-    
+
     func sendMessage() {
         guard !messageText.isEmpty else { return }
         let newMessage = ChatMessage(
@@ -87,10 +87,18 @@ enum MessageSender {
 
 extension ChatMessage {
     static let sampleMessages = [
-        ChatMessage(id: UUID().uuidString, content: "Sample message from me", dateCreated: Date(), sender: .me),
-        ChatMessage(id: UUID().uuidString, content: "Sample message from AI", dateCreated: Date(), sender: .ai),
-        ChatMessage(id: UUID().uuidString, content: "Second message from me", dateCreated: Date(), sender: .me),
-        ChatMessage(id: UUID().uuidString, content: "Second message from AI", dateCreated: Date(), sender: .ai)
+        ChatMessage(
+            id: UUID().uuidString, content: "Sample message from me", dateCreated: Date(),
+            sender: .me),
+        ChatMessage(
+            id: UUID().uuidString, content: "Sample message from AI", dateCreated: Date(),
+            sender: .ai),
+        ChatMessage(
+            id: UUID().uuidString, content: "Second message from me", dateCreated: Date(),
+            sender: .me),
+        ChatMessage(
+            id: UUID().uuidString, content: "Second message from AI", dateCreated: Date(),
+            sender: .ai),
     ]
 }
 
