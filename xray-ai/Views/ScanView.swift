@@ -17,8 +17,6 @@ struct ScanView: View {
                 .padding()
             // Add more UI components for the ScanView here
         }
-        .navigationTitle("Scan")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

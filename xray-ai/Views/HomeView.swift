@@ -42,19 +42,6 @@ struct HomeView: View {
             }
             .padding()
         }
-        .navigationTitle("Chat")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    showMenu.toggle()
-                } label: {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.title2)
-                        .foregroundColor(.primary)
-                }
-            }
-        }
     }
     
     func messageView(message: ChatMessage) -> some View {
