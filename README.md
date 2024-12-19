@@ -95,7 +95,7 @@ We welcome contributions to improve X-Ray AI. Please feel free to submit issues 
 
 ## Contact
 
-For any queries or suggestions, please reach out to [your contact information]
+For any queries or suggestions, please reach out to jakhongir.av@gmail.com
 
 ---
 
