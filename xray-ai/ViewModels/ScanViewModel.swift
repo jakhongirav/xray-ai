@@ -19,7 +19,9 @@ class ScanViewModel: ObservableObject {
 
     private var classificationRequest: VNCoreMLRequest?
     private let logger = Logger(
-        subsystem: Bundle.main.bundleIdentifier ?? "xray-ai", category: "ML Classification")
+        subsystem: Bundle.main.bundleIdentifier ?? "xray-ai",
+        category: "ML Classification"
+    )
 
     init() {
         setupClassifier()
@@ -36,8 +38,14 @@ class ScanViewModel: ObservableObject {
         do {
             let config = MLModelConfiguration()
             let model = try MLModel(contentsOf: modelURL, configuration: config)
-            let vnModel = try VNCoreMLModel(for: model)
 
+            // Log model metadata
+            let description = model.modelDescription
+            logger.info("📋 Model Metadata:")
+            logger.info("Input Description: \(description.inputDescriptionsByName)")
+            logger.info("Output Description: \(description.outputDescriptionsByName)")
+
+            let vnModel = try VNCoreMLModel(for: model)
             logger.info("✅ ML Model loaded successfully")
 
             classificationRequest = VNCoreMLRequest(model: vnModel) { [weak self] request, error in
@@ -50,48 +58,72 @@ class ScanViewModel: ObservableObject {
                 }
 
                 guard let results = request.results as? [VNClassificationObservation],
-                    !results.isEmpty else {
+                    !results.isEmpty
+                else {
                     self?.logger.error("❌ No classification results")
+                    print("❌ No classification results")
                     return
                 }
 
                 DispatchQueue.main.async {
-                    // Store all predictions for reference
-                    self?.allPredictions = results.map { ($0.identifier, $0.confidence) }
-
-                    // Log all predictions for debugging
-                    self?.logger.info("📊 Classification Results:")
+                    // Print raw results for debugging
+                    print("\n🔍 ML CLASSIFICATION RESULTS:")
+                    print("--------------------------------")
                     results.forEach { result in
-                        self?.logger.info(
-                            "   \(result.identifier): \(Int(result.confidence * 100))%")
+                        print(
+                            "Label: '\(result.identifier)' - Confidence: \(Int(result.confidence * 100))%"
+                        )
                     }
+                    print("--------------------------------\n")
+
+                    // Store all predictions
+                    self?.allPredictions = results.map { ($0.identifier, $0.confidence) }
 
                     // Get the top result
                     let topResult = results[0]
-                    self?.classificationResult = topResult.identifier
+                    print(
+                        "📝 Top Result: '\(topResult.identifier)' (\(Int(topResult.confidence * 100))%)"
+                    )
+
+                    // Map the ML model's output to our expected categories
+                    let mappedClass = self?.mapClassification(topResult.identifier)
+                    print("🎯 Mapped to: '\(mappedClass ?? "unknown")'")
+
+                    self?.classificationResult = mappedClass
                     self?.confidence = topResult.confidence
 
                     // Create detailed analysis
-                    let analysis = XRayAnalysis.getAnalysis(
-                        for: topResult.identifier,
-                        confidence: topResult.confidence
-                    )
-                    
-                    // Add other possibilities to the analysis
-                    var analysisWithPossibilities = analysis
-                    if results.count > 1 {
-                        analysisWithPossibilities = XRayAnalysis(
-                            classification: analysis.classification,
-                            confidence: analysis.confidence,
-                            description: analysis.description,
-                            recommendations: analysis.recommendations,
-                            severity: analysis.severity,
-                            otherPossibilities: Array(results.dropFirst().prefix(3))
-                                .map { ($0.identifier, $0.confidence) }
+                    if let mappedClass = mappedClass {
+                        let analysis = XRayAnalysis.getAnalysis(
+                            for: mappedClass,
+                            confidence: topResult.confidence
                         )
+
+                        // Add other possibilities
+                        var analysisWithPossibilities = analysis
+                        if results.count > 1 {
+                            let mappedPossibilities = Array(results.dropFirst().prefix(3))
+                                .map {
+                                    (
+                                        self?.mapClassification($0.identifier) ?? $0.identifier,
+                                        $0.confidence
+                                    )
+                                }
+
+                            analysisWithPossibilities = XRayAnalysis(
+                                classification: analysis.classification,
+                                confidence: analysis.confidence,
+                                description: analysis.description,
+                                recommendations: analysis.recommendations,
+                                severity: analysis.severity,
+                                otherPossibilities: mappedPossibilities
+                            )
+                        }
+
+                        self?.detailedAnalysis = analysisWithPossibilities
+                        print("📊 Final Analysis: \(analysisWithPossibilities.classification)")
                     }
-                    
-                    self?.detailedAnalysis = analysisWithPossibilities
+
                     self?.isAnalyzing = false
                 }
             }
@@ -99,6 +131,29 @@ class ScanViewModel: ObservableObject {
             self.error = error.localizedDescription
             logger.error("❌ Failed to setup classifier: \(error.localizedDescription)")
         }
+    }
+
+    private func mapClassification(_ original: String) -> String {
+        NSLog("🔄 Mapping classification:")
+        NSLog("Input: '\(original)'")
+        
+        let result: String
+        switch original {
+        case "COVID-19":
+            result = "COVID-19"
+        case "Normal":
+            result = "Normal"
+        case "Pneumonia-Bacterial":
+            result = "Bacterial Pneumonia"
+        case "Pneumonia-Viral":
+            result = "Viral Pneumonia"
+        default:
+            NSLog("⚠️ WARNING: Unexpected classification: '\(original)'")
+            result = original
+        }
+        
+        NSLog("Output: '\(result)'")
+        return result
     }
 
     private func loadImage() {
@@ -131,20 +186,38 @@ class ScanViewModel: ObservableObject {
     }
 
     private func classifyImage(_ image: UIImage) {
-        guard let request = classificationRequest else { return }
+        guard let request = classificationRequest else {
+            NSLog("⚠️ Classification request is nil")
+            return 
+        }
 
         guard let ciImage = CIImage(image: image) else {
+            NSLog("⚠️ Failed to create CIImage")
             error = "Failed to create CIImage"
             isAnalyzing = false
             return
         }
 
+        NSLog("📸 Starting classification...")
         let handler = VNImageRequestHandler(ciImage: ciImage)
-        
+
         Task {
             do {
                 try handler.perform([request])
+                
+                // Get raw results immediately after perform
+                if let observations = request.results as? [VNClassificationObservation] {
+                    NSLog("🔍 RAW RESULTS FROM MODEL:")
+                    NSLog("Number of classifications: \(observations.count)")
+                    observations.forEach { observation in
+                        NSLog("- \(observation.identifier): \(observation.confidence)")
+                    }
+                } else {
+                    NSLog("⚠️ No observations found or wrong type")
+                }
+                
             } catch {
+                NSLog("❌ Classification error: \(error.localizedDescription)")
                 await MainActor.run {
                     self.error = error.localizedDescription
                     self.isAnalyzing = false

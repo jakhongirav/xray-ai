@@ -14,6 +14,7 @@ struct ScanView: View {
     @State private var showImagePicker = false
     @State private var selectedImage: UIImage?
     @State private var analysis: XRayAnalysis?
+    @StateObject private var viewModel = ScanViewModel()
     @EnvironmentObject private var historyManager: HistoryManager
     @Environment(\.colorScheme) private var colorScheme
 
@@ -24,12 +25,26 @@ struct ScanView: View {
         .background(Color(uiColor: .systemBackground))
         .navigationTitle("X-ray Analysis")
         .sheet(isPresented: $showImagePicker) {
-            ImagePicker(selectedImage: $selectedImage)
-        }
-        .onChange(of: selectedImage) { oldValue, newValue in
-            if let image = newValue {
-                analyzeImage(image)
+            PhotosPicker(selection: $viewModel.imageSelection,
+                        matching: .images,
+                        photoLibrary: .shared()) {
+                Label("Select X-ray Image", systemImage: "photo")
             }
+        }
+        .onChange(of: viewModel.detailedAnalysis) { oldValue, newValue in
+            if let newAnalysis = newValue {
+                analysis = newAnalysis
+                // Save to history
+                historyManager.addItem(
+                    diagnosis: newAnalysis.classification,
+                    confidence: Double(newAnalysis.confidence),
+                    severity: newAnalysis.severity,
+                    recommendations: newAnalysis.recommendations
+                )
+            }
+        }
+        .onChange(of: viewModel.selectedImage) { oldValue, newValue in
+            selectedImage = newValue
         }
     }
 
@@ -171,42 +186,6 @@ struct ScanView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func analyzeImage(_ image: UIImage) {
-        // Reset current analysis
-        analysis = nil
-
-        // Simulating analysis with sample data
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            analysis = XRayAnalysis(
-                classification: "Pneumonia",
-                confidence: 0.92,
-                description:
-                    "Signs of bacterial pneumonia detected in the lower right lung. Typical features include lobar consolidation and possible pleural effusion.",
-                recommendations: [
-                    "Rest and monitor symptoms",
-                    "Follow prescribed antibiotics",
-                    "Schedule follow-up in 1 week",
-                ],
-                severity: .moderate,
-                otherPossibilities: [
-                    ("COVID-19", 0.15),
-                    ("Viral Pneumonia", 0.08),
-                    ("Normal", 0.02),
-                ]
-            )
-
-            // Save to history
-            if let analysis = analysis {
-                historyManager.addItem(
-                    diagnosis: analysis.classification,
-                    confidence: Double(analysis.confidence),
-                    severity: analysis.severity,
-                    recommendations: analysis.recommendations
-                )
-            }
-        }
     }
 }
 

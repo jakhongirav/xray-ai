@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-struct XRayAnalysis {
+struct XRayAnalysis: Equatable {
     let classification: String
     let confidence: Float
     let description: String
@@ -25,12 +25,36 @@ struct XRayAnalysis {
         }
     }
 
+    static func == (lhs: XRayAnalysis, rhs: XRayAnalysis) -> Bool {
+        guard lhs.classification == rhs.classification,
+            lhs.confidence == rhs.confidence,
+            lhs.description == rhs.description,
+            lhs.recommendations == rhs.recommendations,
+            lhs.severity == rhs.severity,
+            lhs.otherPossibilities.count == rhs.otherPossibilities.count
+        else {
+            return false
+        }
+
+        // Compare each possibility tuple
+        for i in 0..<lhs.otherPossibilities.count {
+            let lhsPossibility = lhs.otherPossibilities[i]
+            let rhsPossibility = rhs.otherPossibilities[i]
+            guard lhsPossibility.label == rhsPossibility.label,
+                lhsPossibility.confidence == rhsPossibility.confidence
+            else {
+                return false
+            }
+        }
+
+        return true
+    }
+
     static func getAnalysis(for classification: String, confidence: Float) -> XRayAnalysis {
-        // First, normalize the classification string
-        let normalizedClass = classification.lowercased().trimmingCharacters(in: .whitespaces)
-        
-        switch normalizedClass {
-        case "normal", "healthy", "no finding":
+        print("\n📊 Creating analysis for classification: '\(classification)'")
+
+        switch classification {
+        case "Normal":
             return XRayAnalysis(
                 classification: "Normal",
                 confidence: confidence,
@@ -49,7 +73,7 @@ struct XRayAnalysis {
                 otherPossibilities: []
             )
 
-        case "viral pneumonia", "pneumonia-viral":
+        case "Viral Pneumonia":
             return XRayAnalysis(
                 classification: "Viral Pneumonia",
                 confidence: confidence,
@@ -71,7 +95,7 @@ struct XRayAnalysis {
                 otherPossibilities: []
             )
 
-        case "bacterial pneumonia", "pneumonia-bacterial":
+        case "Bacterial Pneumonia":
             return XRayAnalysis(
                 classification: "Bacterial Pneumonia",
                 confidence: confidence,
@@ -93,7 +117,7 @@ struct XRayAnalysis {
                 otherPossibilities: []
             )
 
-        case "covid-19", "covid":
+        case "COVID-19":
             return XRayAnalysis(
                 classification: "COVID-19",
                 confidence: confidence,
@@ -117,6 +141,7 @@ struct XRayAnalysis {
             )
 
         default:
+            print("⚠️ Unexpected classification in getAnalysis: '\(classification)'")
             return XRayAnalysis(
                 classification: "Inconclusive",
                 confidence: confidence,
