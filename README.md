@@ -4,8 +4,6 @@
 
 X-Ray AI is a powerful iOS application that leverages machine learning to analyze chest X-ray images and assist in the detection of various respiratory conditions. The app uses CoreML and Vision frameworks to provide real-time analysis of chest X-rays, helping identify conditions such as COVID-19, bacterial pneumonia, viral pneumonia, and normal cases.
 
-![App Screenshot](screenshots/app_screenshot.png)
-
 ## Features
 
 ### 1. X-Ray Analysis
